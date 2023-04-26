@@ -1,1 +1,11 @@
-# official-accounts
+- [前端项目打包构建演进史](https://mp.weixin.qq.com/s/511qRlsnDlaK_9UW0N8PlQ)
+  - 早期 http1.x 一个 tcp 通道只能跑一个 http 请求，其他 http 请求得排队
+  - 早期是 html css js 组合，js 没有模块化，通过多个 script 标签引入 js，还得注意引入顺序。一般 jq 在最上面，bootstrap 依赖 jq，因此再 jq 之后引入。
+  - 再往后 js 出现模块化，把单个 js 文件当做模块，出现了 commonjs AMD CMD ESM。
+  - commonjs 作为 node 默认的模块化 require 引入 module.export 导出 同步加载
+  - AMD 异步加载 使用 requirejs 库 服务端浏览器端都可以使用
+  - CMD 异步加载 使用 seajs 库 只能在浏览器端使用
+  - ESM ECMAscript 模块化规范 服务端和浏览器端都支持 import 导入 export 导出 支持 tree-shaking
+  - esm 现代浏览器都支持，但老版本浏览器不支持，第二是每个模块也就是每个 js 文件都得费一个 http 请求，如果是 http1.x 协议，会出现等待 js 下载的过程，用户体验会很不好。如果能在开发阶段用模块化语法，但生产环境中只有一个或者少量几个 js，那就完美了，因此打包这个环境应运而生。
+  - webpack 分包原则 把第三方库比如 react redux 这种体积大 几乎不会变动的打成一个包 业务代码经常变动体积小的打成另一个包 这样第三方包没有改动，不会重新构建，hash 值不变，用户访问会访问到缓存不会重新下载。业务包体积小，即使用户重新下载也不太会影响体验。
+  - webpack 在开发服务器中，启动构建与文件变更都会经历依赖分析 代码转译 打包的过程，即使有分包但业务代码也会经历这个完整的过程。vite(bundleless 工具)会在开发服务器下启动构建时，首先进行依赖分析，找出所有的第三方依赖包，也就是引用 node_modules 里的包，因为 npm 上的包都是 cjs 或者 umd 形式的，需要把他们转化为 esm，还会对体积较大的 本身有较多依赖的 第三方包比如 lodash 做依赖预构建，打包成一个 js 文件。此后再做代码转译 最后将所有的 esm 格式的 js 都放入内存中，等待开发服务器读取。
